@@ -1,4 +1,4 @@
-﻿/* 
+/* 
  
 YOU ARE NOT ALLOWED TO MODIFY ANY FUNCTION DEFINATION's PROVIDED.
 WRITE YOUR CODE IN THE RESPECTIVE QUESTION FUNCTION BLOCK
@@ -182,49 +182,69 @@ namespace ISM6225_Fall_2023_Assignment_2
         public static bool IsValid(string s)
         {
             try
-            {
-                // Write your code here and you can modify the return value according to the requirements
-                // Create a character array 'stack' to act as a stack for storing opening brackets.
-                char[] stack = new char[s.Length];
+            {// Create a dictionary to map each opening bracket to its corresponding closing bracket.
+Dictionary<char, char> matches = new Dictionary<char, char>
+{
+    {'(', ')'},
+    {'[', ']'},
+    {'{', '}'}
+};
 
-                // Initialize a variable 'j' to represent the top of the stack, initially set to -1.
-                int j = -1;
+// Initialize a variable to keep track of the most recent opening bracket.
+int opener = -1;
 
-                // Iterate through each character in the input string 's'.
-                for (int i = 0; i < s.Length; i++)
-                {
-                    // Check if the current character is an opening bracket ('{', '[', or '(').
-                    if (s[i] == '{' || s[i] == '[' || s[i] == '(')
-                    {
-                        j++; // Increment 'j' to simulate pushing the opening bracket onto the stack.
-                        stack[j] = s[i]; // Store the opening bracket in the stack.
-                    }
-                    else
-                    {
-                        // Check if there's a mismatch because a closing bracket is encountered without a corresponding opening bracket.
-                        if (j == -1)
-                        {
-                            return false; // Return 'false' because there's no matching opening bracket.
-                        }
-
-                        // Check if the current closing bracket matches the last opening bracket on the stack.
-                        if ((stack[j] == '(' && s[i] == ')') || (stack[j] == '[' && s[i] == ']') || (stack[j] == '{' && s[i] == '}'))
-                        {
-                            stack[j] = '\0'; // Mark the matched opening bracket as null ('\0') to indicate it's consumed.
-                            j--; // Decrement 'j' to simulate popping the opening bracket from the stack.
-                        }
-                        else
-                        {
-                            return false; // Return 'false' because there's a mismatch between opening and closing brackets.
-                        }
-                    }
+// Iterate over the string.
+for (int i = 0; i < s.Length; i++) {
+    
+    // Check if the current character is an opening bracket.
+    if (matches.ContainsKey(s[i])) {
+        opener = i;
+    } 
+    // Check if the current character is a closing bracket that matches the most recent opening bracket.
+    else if (opener >= 0 && s[i] == matches[s[opener]]) {
+        
+        // Initialize a balance variable to ensure brackets are correctly nested.
+        int balance = 0;
+        
+        // Move the opener pointer one step back.
+        opener -= 1;
+        
+        // Keep moving back while opener is valid and balance is less than 1.
+        while (opener >= 0 && balance < 1) {
+            // If the current character is an opening bracket, increment the balance.
+            if (matches.ContainsKey(s[opener])) {
+                balance += 1;
+                
+                // Move the opener pointer one step back if balance is still less than 1.
+                if (balance < 1) {
+                    opener -= 1;
                 }
+            } 
+            // If the current character is a closing bracket, decrement the balance.
+            else {
+                balance -= 1;
+                opener -= 1;
+            }
+        }
+        
+        // If there's no matching opener for the current closing bracket, return false.
+        if (opener == -1 && balance != 0) {
+            return false;
+        }
+        
+        // If there's an unmatched opening bracket before the current closing bracket, return false.
+        if (opener >= 0 && balance != 1) {
+            return false;
+        }
+    } 
+    // If the current character is neither a valid opening nor a matching closing bracket, return false.
+    else {
+        return false;
+    }
+}
 
-                // Check if the stack is empty (all opening brackets matched with closing brackets).
-                if (j == -1)
-                    return true;
-                else
-                    return false;
+// If there's no unmatched opening bracket at the end, return true.
+return opener == -1;
             }
             catch (Exception)
             {
